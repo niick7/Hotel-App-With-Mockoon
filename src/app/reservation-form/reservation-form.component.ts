@@ -29,16 +29,15 @@ export class ReservationFormComponent implements OnInit {
       checkInDate: ['', Validators.required],
       checkOutDate: ['', Validators.required],
       guestName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      guestEmail: ['', [Validators.required, Validators.email]],
       roomNumber: ['', Validators.required],
     });
 
     let id = this.activatedRouter.snapshot.paramMap.get('id');
     if (id) {
-      let reservation = this.reservationService.getReservation(id);
-      if (reservation) {
-        this.reservationForm.patchValue(reservation);
-      }
+      this.reservationService.getReservation(id)?.subscribe((reservation) => {
+        if (reservation) this.reservationForm.patchValue(reservation);
+      });
     }
   }
 
@@ -48,10 +47,16 @@ export class ReservationFormComponent implements OnInit {
       let id = this.activatedRouter.snapshot.paramMap.get('id');
       if (id) {
         // Update
-        this.reservationService.updateReservation(id, reservation);
+        this.reservationService
+          .updateReservation(id, reservation)
+          .subscribe(() => {
+            console.log('Updated a reservation successfully!');
+          });
       } else {
         // New
-        this.reservationService.addReservation(reservation);
+        this.reservationService.addReservation(reservation).subscribe(() => {
+          console.log('Created a reservation successfully!');
+        });
       }
       this.router.navigate(['/list']);
     }
